@@ -16,7 +16,6 @@ set(dll-injector_src
 )
 
 set(dll-injector_lib
-  "Kernel32"
   "psapi"
 )
 
@@ -28,11 +27,6 @@ target_link_libraries(dll-injector ${dll-injector_lib})
 set(injected_src
   "src/injected/injected.cc"
   "src/injected/console.cc"
-)
-
-set(injected_lib
-  "user32"
-  "version"
 )
 
 add_library(injected MODULE ${injected_src})

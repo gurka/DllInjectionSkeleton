@@ -4,7 +4,7 @@
 #include <psapi.h>
 
 // Name of the program to inject the dll in
-static const std::string programName = "test.exe";
+static const std::string programName = "gvim.exe";
 
 // Name of the dll to inject
 static const std::string dllName = "libinjected.dll";
@@ -20,18 +20,20 @@ DWORD findPid(const std::string& programName)
   }
 
   // Find the first process with the given program name
-  DWORD noPids = temp / sizeof(DWORD);
-  for (DWORD i = 0; i < noPids; i++)
+  auto noPids = temp / sizeof(DWORD);
+  for (auto i = 0u; i < noPids; i++)
   {
     if (pids[i] == 0)
     {
       continue;
     }
-    HANDLE tempHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pids[i]);
+
+    auto tempHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pids[i]);
     if (tempHandle == NULL)
     {
       continue;
     }
+
     HMODULE tempModule;
     if (EnumProcessModules(tempHandle, &tempModule, sizeof(tempModule), &temp))
     {
@@ -43,6 +45,7 @@ DWORD findPid(const std::string& programName)
       }
     }
   }
+
   return 0;
 }
 
@@ -56,21 +59,21 @@ bool injectDLL(DWORD pid)
   }
 
   // Open process using pid
-  HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
+  auto handle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
   if (handle == NULL)
   {
     return false;
   }
 
   // Get the address to the function LoadLibraryA in kernel32.dll
-  LPVOID LoadLibAddr = (LPVOID)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
+  auto LoadLibAddr = (LPVOID)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
   if (LoadLibAddr == NULL)
   {
     return false;
   }
 
   // Allocate memory inside the opened process
-  LPVOID dereercomp = VirtualAllocEx(handle, NULL, strlen(fullDllName), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+  auto dereercomp = VirtualAllocEx(handle, NULL, strlen(fullDllName), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
   if (dereercomp == NULL)
   {
     return false;
@@ -83,7 +86,7 @@ bool injectDLL(DWORD pid)
   }
 
   // Create a thread in the opened process
-  HANDLE remoteThread = CreateRemoteThread(handle, NULL, 0, (LPTHREAD_START_ROUTINE)LoadLibAddr, dereercomp, 0, NULL);
+  auto remoteThread = CreateRemoteThread(handle, NULL, 0, (LPTHREAD_START_ROUTINE)LoadLibAddr, dereercomp, 0, NULL);
   if (remoteThread == NULL)
   {
     return false;
@@ -105,7 +108,7 @@ bool injectDLL(DWORD pid)
 int main(int argc, char* argv[])
 {
   printf("Finding pid for: %s\n", programName.c_str());
-  DWORD pid = findPid(programName);
+  auto pid = findPid(programName);
   if (pid == 0)
   {
     fprintf(stderr, "Could not find process: %s\n", programName.c_str());
