@@ -20,7 +20,6 @@ set(dll-injector_lib
 )
 
 add_executable(dll-injector ${dll-injector_src})
-target_include_directories(dll-injector PUBLIC ${dll-injector_inc})
 target_link_libraries(dll-injector ${dll-injector_lib})
 
 # injected.dll
@@ -30,5 +29,3 @@ set(injected_src
 )
 
 add_library(injected MODULE ${injected_src})
-target_include_directories(injected PUBLIC ${injected_inc})
-target_link_libraries(injected ${injected_lib})
